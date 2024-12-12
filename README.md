@@ -1,3 +1,1 @@
 # PetclinicAzureDeployment
-# PetclinicAzureDeployment
-# PetclinicAzureDeployment

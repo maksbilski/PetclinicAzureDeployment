@@ -1,0 +1,54 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install required packages
+  apt:
+    name:
+      - openjdk-17-jdk
+      - git
+      - maven
+    state: present
+
+- name: Clone spring-petclinic-rest repository
+  git:
+    repo: https://github.com/spring-petclinic/spring-petclinic-rest.git
+    dest: /home/azureuser/spring-petclinic-rest
+
+- name: Set proper ownership for spring-petclinic directory
+  file:
+    path: /home/azureuser/spring-petclinic-rest
+    owner: azureuser
+    group: azureuser
+    recurse: yes
+
+- name: Configure application.properties
+  template:
+    src: application.properties.j2
+    dest: /home/azureuser/spring-petclinic-rest/src/main/resources/application.properties
+
+- name: Configure application-mysql.properties
+  template:
+    src: application-mysql.properties.j2
+    dest: /home/azureuser/spring-petclinic-rest/src/main/resources/application-mysql.properties
+
+- name: Build application with Maven
+  command:
+    cmd: mvn clean install -DskipTests
+    chdir: /home/azureuser/spring-petclinic-rest
+
+- name: Create systemd service file
+  template:
+    src: petclinic.service.j2
+    dest: /etc/systemd/system/petclinic.service
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and enable petclinic service
+  systemd:
+    name: petclinic
+    state: started
+    enabled: yes

@@ -1,0 +1,34 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install MySQL
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Start and enable MySQL
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: Create petclinic database
+  mysql_db:
+    name: petclinic
+    state: present
+
+- name: Create petclinic user
+  mysql_user:
+    name: petclinic
+    password: petclinic
+    priv: 'petclinic.*:ALL'
+    host: '%'
+    state: present
+
+- name: Configure MySQL to listen on all interfaces and custom port
+  template:
+    src: mysqld.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+  notify: restart mysql

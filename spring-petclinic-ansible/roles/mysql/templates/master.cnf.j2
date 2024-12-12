@@ -1,0 +1,9 @@
+[mysqld]
+server-id = 1
+log_bin = /var/log/mysql/mysql-bin.log
+binlog_do_db = petclinic
+port = {{ mysql_master_port }}
+bind-address = 0.0.0.0
+max_connections = 10
+gtid_mode = ON
+enforce_gtid_consistency = ON

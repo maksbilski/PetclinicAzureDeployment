@@ -1,0 +1,13 @@
+[Unit]
+Description=Petclinic Spring Boot Application
+After=network.target
+
+[Service]
+Type=simple
+User=azureuser
+WorkingDirectory=/home/azureuser/spring-petclinic-rest
+ExecStart=/usr/bin/java -jar target/spring-petclinic-rest-3.2.1.jar
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
