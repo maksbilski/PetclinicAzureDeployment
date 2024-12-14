@@ -48,10 +48,45 @@ locals {
   }
 }
 
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_resource_group" "petclinic-rg" {
   name     = var.resource_group_name
   location = var.location
 }
+
+resource "azurerm_key_vault" "petclinic-key-vault" {
+  name                = "petclinig-key-vault"
+  sku_name            = "standard"
+  location            = var.location
+  tenant_id           = var.tenant_id
+  resource_group_name = azurerm_resource_group.petclinic-rg.name
+}
+
+resource "azurerm_key_vault_access_policy" "terraform" {
+  key_vault_id = azurerm_key_vault.petclinic-key-vault.id
+  tenant_id    = var.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+    "Delete",
+    "Purge"
+  ]
+}
+
+resource "azurerm_key_vault_secret" "ssh_public_key" {
+  name         = "ssh-public-key"
+  value        = file("~/.ssh/id_rsa.pub")
+  key_vault_id = azurerm_key_vault.petclinic-key-vault.id
+
+  depends_on = [
+    azurerm_key_vault_access_policy.terraform
+  ]
+}
+
 resource "azurerm_virtual_network" "petclinic-vnet" {
   name                = "petclinic-vnet"
   address_space       = [var.main_vnet_address_space]
@@ -135,18 +170,21 @@ resource "azurerm_network_interface_security_group_association" "per_ip_network_
 }
 
 resource "azurerm_linux_virtual_machine" "service_vm" {
-  for_each       = local.unique_ips
-  name           = "${each.value}-vm"
-  location       = var.location
-  size           = local.vm_sizes[each.value]
-  admin_username = var.admin_username
-  admin_password = var.admin_password
-
-  disable_password_authentication = false
+  for_each                        = local.unique_ips
+  name                            = "${each.value}-vm"
+  location                        = var.location
+  size                            = local.vm_sizes[each.value]
+  disable_password_authentication = true
+  admin_username                  = "azureuser"
 
   network_interface_ids = [
     azurerm_network_interface.per_ip_network_interface[each.value].id
   ]
+
+  admin_ssh_key {
+    username   = "azureuser"
+    public_key = azurerm_key_vault_secret.ssh_public_key.value
+  }
 
   os_disk {
     caching              = "ReadWrite"

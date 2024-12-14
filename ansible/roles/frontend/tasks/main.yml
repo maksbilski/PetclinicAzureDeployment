@@ -5,27 +5,10 @@
     name: nginx
     state: present
 
-- name: Create petclinic directory
-  file:
-    path: /usr/share/nginx/html/petclinic
-    state: directory
-    mode: '0755'
-
-- name: Copy Angular build files
-  synchronize:
-    src: /home/azureuser/dist/
-    dest: /usr/share/nginx/html/petclinic/
-
 - name: Configure nginx for petclinic
   template:
     src: petclinic.conf.j2
     dest: /etc/nginx/conf.d/petclinic.conf
-  notify: reload nginx
-
-- name: Remove default nginx site
-  file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
   notify: reload nginx
 
 - name: Start and enable nginx

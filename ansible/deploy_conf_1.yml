@@ -1,0 +1,16 @@
+---
+- name: Deploy Frontend
+  hosts: frontend
+  roles:
+    - frontend
+
+- name: Deploy MySQL
+  hosts: mysql
+  roles:
+    - role: mysql
+      tasks_from: main.yml
+
+- name: Deploy Backend
+  hosts: backend
+  roles:
+    - backend

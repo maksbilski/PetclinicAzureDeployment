@@ -19,6 +19,10 @@ variable "subscription_id" {
   type = string
 }
 
+variable "tenant_id" {
+  type = string
+}
+
 variable "subnet_prefixes" {
   type        = map(string)
   description = "Address prefixes for subnets"
@@ -26,14 +30,4 @@ variable "subnet_prefixes" {
 
 variable "main_vnet_address_space" {
   type = string
-}
-
-variable "admin_username" {
-  type        = string
-  description = "Administrator username for VMs"
-}
-
-variable "admin_password" {
-  type        = string
-  description = "Administrator password for VMs"
 }

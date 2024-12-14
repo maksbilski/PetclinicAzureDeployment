@@ -3,6 +3,6 @@ server-id = 2
 relay-log = /var/log/mysql/mysql-relay-bin.log
 port = {{ mysql_slave_port }}
 read_only = ON
-max_connections = 10
+max_connections = {{ mysql_max_connections | default(151) }}
 gtid_mode = ON
 enforce_gtid_consistency = ON

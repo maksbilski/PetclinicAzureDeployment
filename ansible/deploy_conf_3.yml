@@ -1,0 +1,20 @@
+---
+- name: Deploy Frontend
+  hosts: frontend
+  roles:
+    - frontend
+
+- name: Deploy MySQL-Master
+  hosts: mysql-master
+  roles:
+    - mysql-master
+
+- name: Deploy MySQL-Slave
+  hosts: mysql-slave
+  roles:
+    - mysql-slave
+
+- name: Deploy Backend
+  hosts: backend
+  roles:
+    - backend

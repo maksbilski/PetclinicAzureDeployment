@@ -1,3 +1,4 @@
+# roles/mysql-master/tasks/main.yml
 ---
 - name: Update apt cache
   apt:
@@ -15,11 +16,11 @@
     name: mysql-server
     state: present
 
-- name: Start and enable MySQL
-  service:
-    name: mysql
-    state: started
-    enabled: yes
+- name: Configure MySQL master
+  template:
+    src: master.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+  notify: restart mysql
 
 - name: Z
   command: mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
@@ -34,6 +35,17 @@
       password=root
     mode: '600'
 
+- name: Start and enable MySQL
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: Wait for MySQL to start
+  wait_for:
+    port: "{{ mysql_master_port }}"
+    delay: 10
+
 - name: Create petclinic database
   mysql_db:
     name: petclinic
@@ -47,8 +59,10 @@
     host: '%'
     state: present
 
-- name: Configure MySQL to listen on all interfaces and custom port
-  template:
-    src: mysql.cnf.j2
-    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
-  notify: restart mysql
+- name: Create replication user
+  mysql_user:
+    name: repl_petclinic
+    password: repl_petclinic
+    host: "{{ mysql_slave_host }}"
+    priv: '*.*:REPLICATION SLAVE'
+    state: present

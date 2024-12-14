@@ -1,0 +1,48 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install MySQL Server
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Configure MySQL slave
+  template:
+    src: slave.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/slave.cnf
+
+- name: Restart MySQL
+  service:
+    name: mysql
+    state: restarted
+
+- name: Wait for MySQL to start
+  wait_for:
+    port: "{{ mysql_slave_port }}"
+    delay: 10
+
+- name: Stop replica
+  command: mysql -e "STOP REPLICA;"
+  ignore_errors: yes
+
+- name: Configure replication source
+  command: >
+    mysql -e "CHANGE REPLICATION SOURCE TO
+    SOURCE_HOST='{{ mysql_master_host }}',
+    SOURCE_PORT={{ mysql_master_port }},
+    SOURCE_USER='repl_petclinic',
+    SOURCE_PASSWORD='repl_petclinic',
+    SOURCE_AUTO_POSITION = 1;"
+
+- name: Start replica
+  command: mysql -e "START REPLICA;"
+
+- name: Show replica status
+  command: mysql -e "SHOW REPLICA STATUS\G"
+  register: replica_status
+
+- name: Display replica status
+  debug:
+    var: replica_status.stdout
