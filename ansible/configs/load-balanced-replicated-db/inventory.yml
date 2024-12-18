@@ -1,0 +1,50 @@
+# load-balanced-replicated-db/inventory.yml
+all:
+  vars:
+    ansible_user: azureuser
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+frontend:
+  hosts:
+    frontend:
+      ansible_host: "{{ lookup('env', 'PETCLINIC_ANGULAR_FRONTEND_PUBLIC_IP') }}"
+      ansible_ssh_common_args: ''
+  vars:
+    frontend_port: "{{ lookup('env', 'PETCLINIC_ANGULAR_FRONTEND_PORT') }}"
+    load_balancing: "ON"
+    backend_host: "{{ lookup('env', 'PETCLINIC_SPRING_PETCLINIC_1_IP') }}"
+    backend_port: "{{ lookup('env', 'PETCLINIC_SPRING_PETCLINIC_1_PORT') }}"
+    backend2_host: "{{ lookup('env', 'PETCLINIC_SPRING_PETCLINIC_2_IP') }}"
+    backend2_port: "{{ lookup('env', 'PETCLINIC_SPRING_PETCLINIC_2_PORT') }}"
+backend:
+  hosts:
+    backend1:
+      ansible_host: "{{ lookup('env', 'PETCLINIC_SPRING_PETCLINIC_1_IP') }}"
+      ansible_ssh_common_args: '-J azureuser@{{ lookup(''env'', ''PETCLINIC_ANGULAR_FRONTEND_PUBLIC_IP'') }}'
+    backend2:
+      ansible_host: "{{ lookup('env', 'PETCLINIC_SPRING_PETCLINIC_2_IP') }}"
+      ansible_ssh_common_args: '-J azureuser@{{ lookup(''env'', ''PETCLINIC_ANGULAR_FRONTEND_PUBLIC_IP'') }}'
+  vars:
+    backend_port: "{{ lookup('env', 'PETCLINIC_SPRING_PETCLINIC_1_PORT') }}"
+    mysql_host: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_IP') }}"
+    mysql_port: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_PORT') }}"
+    mysql_slave_host: "{{ lookup('env', 'PETCLINIC_MYSQL_SLAVE_IP') }}"
+    mysql_slave_port: "{{ lookup('env', 'PETCLINIC_MYSQL_SLAVE_PORT') }}"
+mysql-master:
+  hosts:
+    mysql-master:
+      ansible_host: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_IP') }}"
+      ansible_ssh_common_args: '-J azureuser@{{ lookup(''env'', ''PETCLINIC_ANGULAR_FRONTEND_PUBLIC_IP'') }}'
+  vars:
+    mysql_port: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_PORT') }}"
+    mysql_master_port: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_PORT') }}"
+    mysql_slave_host: "{{ lookup('env', 'PETCLINIC_MYSQL_SLAVE_IP') }}"
+mysql-slave:
+  hosts:
+    mysql-slave:
+      ansible_host: "{{ lookup('env', 'PETCLINIC_MYSQL_SLAVE_IP') }}"
+      ansible_ssh_common_args: '-J azureuser@{{ lookup(''env'', ''PETCLINIC_ANGULAR_FRONTEND_PUBLIC_IP'') }}'
+  vars:
+    mysql_port: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_PORT') }}"
+    mysql_master_host: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_IP') }}"
+    mysql_master_port: "{{ lookup('env', 'PETCLINIC_MYSQL_MASTER_PORT') }}"
+    mysql_slave_port: "{{ lookup('env', 'PETCLINIC_MYSQL_SLAVE_PORT') }}"

@@ -1,0 +1,87 @@
+{
+  "services_details": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "angular-frontend": [
+          "object",
+          {
+            "name": "string",
+            "port": "number",
+            "private_ip": "string",
+            "public_ip": "string"
+          }
+        ],
+        "mysql-master": [
+          "object",
+          {
+            "name": "string",
+            "port": "number",
+            "private_ip": "string",
+            "public_ip": "string"
+          }
+        ],
+        "mysql-slave": [
+          "object",
+          {
+            "name": "string",
+            "port": "number",
+            "private_ip": "string",
+            "public_ip": "string"
+          }
+        ],
+        "spring-petclinic-1": [
+          "object",
+          {
+            "name": "string",
+            "port": "number",
+            "private_ip": "string",
+            "public_ip": "string"
+          }
+        ],
+        "spring-petclinic-2": [
+          "object",
+          {
+            "name": "string",
+            "port": "number",
+            "private_ip": "string",
+            "public_ip": "string"
+          }
+        ]
+      }
+    ],
+    "value": {
+      "angular-frontend": {
+        "name": "angular-frontend",
+        "port": 4200,
+        "private_ip": "10.0.0.5",
+        "public_ip": "74.248.137.136"
+      },
+      "mysql-master": {
+        "name": "mysql-master",
+        "port": 3306,
+        "private_ip": "10.0.0.8",
+        "public_ip": null
+      },
+      "mysql-slave": {
+        "name": "mysql-slave",
+        "port": 3306,
+        "private_ip": "10.0.0.9",
+        "public_ip": null
+      },
+      "spring-petclinic-1": {
+        "name": "spring-petclinic-1",
+        "port": 9966,
+        "private_ip": "10.0.0.5",
+        "public_ip": null
+      },
+      "spring-petclinic-2": {
+        "name": "spring-petclinic-2",
+        "port": 9966,
+        "private_ip": "10.0.0.7",
+        "public_ip": null
+      }
+    }
+  }
+}
